@@ -59,7 +59,7 @@ export class ProjectsView extends LitElement {
       <h1>Projects:</h1>
       <create-project></create-project>
       ${this.projects.length === 0 
-        ? html`<div>No projects</div>`
+        ? html`<div id="no-projects-found" >No projects</div>`
         : this.projects.map( project => 
             html`<project-list-item .title=${project.title}></project-list-item>`)
       }
