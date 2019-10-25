@@ -38,7 +38,6 @@ export class CreateProject extends LitElement {
   }
 
   titleChanged(event) {
-    console.log(this, event);
     this.title = event.target.value;
   }
 
@@ -48,6 +47,7 @@ export class CreateProject extends LitElement {
     const bubbles = true;
     this.dispatchEvent(new CustomEvent('createproject', {bubbles, detail}) );
     this.title = '';
+    console.log(this, event);
     return false;
   }
 
