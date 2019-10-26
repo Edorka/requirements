@@ -25,12 +25,14 @@ describe('<create-project>', () => {
       <create-project></create-project>
     `);
     const input = el.shadowRoot.querySelector('input');
+    const button = el.shadowRoot.querySelector('button');
     const detail = {};
     input.value = 'this is a test';
     const falseInputEvent = new CustomEvent('input', { detail, bubbles: true });
     input.dispatchEvent(falseInputEvent);
     await elementUpdated(el);
     expect(el.title).to.equal('this is a test');
+    expect(button.getAttribute('disabled')).to.equal('false');
   });
 
   it('should launch create event', async () => {
@@ -44,5 +46,16 @@ describe('<create-project>', () => {
     setTimeout(() => button.dispatchEvent(falseClickEvent));
     const { detail } = await oneEvent(el, 'createproject');
     expect(detail.title).to.equal('this is a test');
+  });
+
+  it('should be disabled on empty title', async () => {
+    const el = await fixture(html`
+      <create-project></create-project>
+    `);
+    const input = el.shadowRoot.querySelector('input');
+    const button = el.shadowRoot.querySelector('button');
+    el.title = '';
+    await elementUpdated(el);
+    expect(button.getAttribute('disabled')).to.equal("true");
   });
 });

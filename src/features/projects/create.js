@@ -14,6 +14,7 @@ export class CreateProject extends LitElement {
         border: 1px solid #4D4FEF;
         padding: 20px;
         color: white;
+        cursor: pointer;
       }
       input {
         background: #FFFFFF;
@@ -22,6 +23,10 @@ export class CreateProject extends LitElement {
         box-sizing: border-box;
         border-radius: 2px;
         padding: 20px;
+      }
+      button[disabled] {
+        background: #3D3FDF;
+        color: #cecece;
       }
     `;
   }
@@ -59,7 +64,7 @@ export class CreateProject extends LitElement {
         <button 
             type="button"
             @click=${this.createClicked}
-            .disabled=${this.title.length === 0}
+            ?disabled=${this.title.length === 0}
             >Create Project</button> 
       </form>
     `;
