@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 import { openWc } from './open-wc-logo';
 import { ProjectsView } from './features/projects/view';
+import { SwitchBy } from './components/switch-by-url.js';
 
 const mainBgColor = css`#ff9800`;
 const mainBgColorDarker = css`#ef6c00`;
@@ -70,7 +71,13 @@ class MyApp extends LitElement {
       <header class="app-header">
         <span class="title">Proquirements</span>
       </header>
-      <projects-view></projects-view>
+      <switch-by >
+        <switch-case path="/true"><a>True</a></switch-case>
+        <switch-case path="/nope"><a>Nope</a></switch-case>
+        <switch-case path="/projects" defaults="true">
+          <projects-view></projects-view>
+        </switch-case>
+      </switch-by>
       <p class="app-footer">
         🚽 Made with love by
         <a target="_blank" rel="noopener noreferrer" href="https://github.com/open-wc">open-wc</a>.

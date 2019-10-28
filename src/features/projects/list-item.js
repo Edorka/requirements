@@ -72,9 +72,10 @@ export class ProjectListItem extends LitElement {
   }
 
   render() {
+    const resource = `#/project/${this.title}`;
     return html`
       <div class="row appears">
-        <span class="title">${this.title}</span>
+        <a href=${resource} class="title">${this.title}</a>
         <button class="control remove" @click=${this.remove}>X</button>
       </div>
     `;
