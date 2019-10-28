@@ -1,5 +1,6 @@
 import { html, css, LitElement } from 'lit-element';
 
+
 export class CreateProject extends LitElement {
   static get styles() {
     return css`
@@ -7,26 +8,34 @@ export class CreateProject extends LitElement {
         display: inline;
         padding: 25px;
       }
+
       button {
-        background: #4D4FEF;
+        background: var(--main-bg-color);
         box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.15);
         border-radius: 2px; 
-        border: 1px solid #4D4FEF;
+        border: 1px solid var(--main-bg-color);
         padding: 20px;
         color: white;
         cursor: pointer;
+        opacity: 1;
       }
+
+      button[disabled] {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      button, button[disabled] {
+        transition: all .5s  ease-in-out;
+      }
+
       input {
+        outline: none;
         background: #FFFFFF;
-        /* border-color */
         border: 1px solid #D1D9E7;
         box-sizing: border-box;
         border-radius: 2px;
         padding: 20px;
-      }
-      button[disabled] {
-        background: #3D3FDF;
-        color: #cecece;
       }
     `;
   }
@@ -34,6 +43,7 @@ export class CreateProject extends LitElement {
   static get properties() {
     return {
       title: { type: String },
+      color: { type: String }
     };
   }
 

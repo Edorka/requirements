@@ -6,6 +6,18 @@ export class ProjectListItem extends LitElement {
         :root {
             display: inline;
         }
+        .row {
+            opacity: 1;
+            max-height: 50px; 
+            overflow: hidden;
+        }
+        .row.appears {
+            opacity: 0;
+            max-height: 0;
+        }
+        .row, .row.appears {
+            transition: all 1s linear;
+        }
         .title, .control{
             display: inline;
             line-height: 2em;
@@ -21,6 +33,16 @@ export class ProjectListItem extends LitElement {
             height: 2em;
             width: 2em;
         }
+        .row .control {
+            opacity: 0;
+        }
+        .row:hover .control {
+            opacity: 1;
+        }
+        .row .control,
+        .row:hover .control {
+            transition: all .5s ease-in-out;
+        }
     `;
   }
 
@@ -30,12 +52,19 @@ export class ProjectListItem extends LitElement {
       children: { type: Array },
     };
   }
+  firstUpdated() {
+    setTimeout( () => {
+      const row = this.shadowRoot.querySelector('.row');
+      row.classList.remove('appears');
+    });
+  }
 
   constructor() {
     super();
     this.title = '';
     this.children = [];
   }
+
   remove(event) {
     const detail = { target: this };
     const bubbles = true;
@@ -44,7 +73,7 @@ export class ProjectListItem extends LitElement {
 
   render() {
     return html`
-      <div class="row">
+      <div class="row appears">
         <span class="title">${this.title}</span>
         <button class="control remove" @click=${this.remove}>X</button>
       </div>
