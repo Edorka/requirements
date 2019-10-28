@@ -32,7 +32,7 @@ describe('<create-project>', () => {
     input.dispatchEvent(falseInputEvent);
     await elementUpdated(el);
     expect(el.title).to.equal('this is a test');
-    expect(button.getAttribute('disabled')).to.equal('false');
+    expect(button.getAttribute('disabled')).to.equal(null);
   });
 
   it('should launch create event', async () => {
@@ -56,6 +56,6 @@ describe('<create-project>', () => {
     const button = el.shadowRoot.querySelector('button');
     el.title = '';
     await elementUpdated(el);
-    expect(button.getAttribute('disabled')).to.equal("true");
+    expect(button.getAttribute('disabled')).to.not.equal(null);
   });
 });
