@@ -1,8 +1,7 @@
 import { html, css, LitElement } from 'lit-element';
 
-
 export class SwitchBy extends LitElement {
-   static get styles() {
+  static get styles() {
     return css`
       :host {
         width: 100%;
@@ -13,15 +12,14 @@ export class SwitchBy extends LitElement {
       }
       switch-case.active {
         display: block;
-      }`
-   }
-
-   
-  static get properties() {
-    return {
-    };
+      }
+    `;
   }
-  
+
+  static get properties() {
+    return {};
+  }
+
   constructor() {
     super();
     this.handleHashChange = this.handleHashChange.bind(this);
@@ -35,77 +33,70 @@ export class SwitchBy extends LitElement {
 
   handleHashChange() {
     const hash = window.location.hash.replace('#', '');
-    if ( this.__hash !== hash ) {
-        console.log('handleHashChange', hash, window.location.path);
-        this.__hash = hash;
-        this.updateChildren();
+    if (this.__hash !== hash) {
+      this.__hash = hash;
+      this.updateChildren();
     }
     return false;
   }
 
   updateChildren() {
     let activated = null;
-    Array.from(this.children).forEach( child => {
-        if ( activated !== null ) {
-            child.active = false;
-            child.slot = 'hidden';
-            return;
-        }
-        const applys = this.childMatches(child);
-        const defaults = child.getAttribute('defaults') !== null;
-        child.active = applys || defaults;
-        if ( child.active ) {
-            child.classList.add('active');
-        } else {
-            child.classList.remove('active');
-        }
-        activated = child.active ? child : null;
-        child.requestUpdate();
+    Array.from(this.children).forEach(child => {
+      if (activated !== null) {
+        child.active = false;
+        return;
+      }
+      const applys = this.childMatches(child);
+      const defaults = child.getAttribute('defaults') !== null;
+      child.active = applys || defaults;
+      activated = child.active ? child : activated;
+      child.requestUpdate();
     });
   }
 
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener("hashchange", this.handleHashChange, false, true);
+    window.addEventListener('hashchange', this.handleHashChange, false, true);
     this.handleHashChange();
-    console.log('waiting for state change');
   }
 
+  disconnectedCallback() {
+    window.removeEventListener('hashchange', this.handleHashChange);
+  }
 
   render() {
+    const activated = Array.from(this.children).find(child => child.active);
     return html`
-        <div class="current">
-        ${ this.children }
-        </div>
+      <div class="current">
+        ${activated !== undefined ? activated.render() : null}
+      </div>
     `;
   }
 }
 
 customElements.define('switch-by', SwitchBy);
 
-const asGroup = (path, fieldName) =>
-    `(?<${fieldName}>.*)`
+const asGroup = (path, fieldName) => `(?<${fieldName}>.*)`;
 
-const fieldPathPart = /:([^\/]+)/ig;
+const fieldPathPart = /:([^\/]+)/gi;
 
-const extractGroups = (path)  => {
-    if ( path.includes(':') === false ){ return path };
-    return path.replace(fieldPathPart, asGroup);
-}
+const extractGroups = path => {
+  if (path.includes(':') === false) {
+    return path;
+  }
+  return path.replace(fieldPathPart, asGroup);
+};
 
-export const expressionFromPath = (path, optionalTrailing=true) => {
-    const hasPath =(path !== undefined && path.length > 0 && path !== '/');
-    const source = hasPath === true 
-        ? extractGroups(path)
-        : '/';
-    const trailing = optionalTrailing === true && hasPath === true
-        ? '/?'
-        : ''
-    return new RegExp(`^${source}${trailing}$`);
-}
+export const expressionFromPath = (path, optionalTrailing = true) => {
+  const hasPath = path !== undefined && path.length > 0 && path !== '/';
+  const source = hasPath === true ? extractGroups(path) : '/';
+  const trailing = optionalTrailing === true && hasPath === true ? '/?' : '';
+  return new RegExp(`^${source}${trailing}$`);
+};
 
 export class SwitchCase extends LitElement {
-   static get styles() {
+  static get styles() {
     return css`
       :host {
         width: 100%;
@@ -116,20 +107,20 @@ export class SwitchCase extends LitElement {
       }
       .case.active {
         display: block;
-      }`
-
-   }
+      }
+    `;
+  }
   static get properties() {
     return {
       path: { type: String },
-      active: { type: Boolean }
+      active: { type: Boolean },
     };
   }
 
   constructor() {
-     super();
-     this.__expression = null;
-     this.active = false;
+    super();
+    this.__expression = null;
+    this.active = false;
   }
 
   set path(path) {
@@ -137,17 +128,26 @@ export class SwitchCase extends LitElement {
   }
 
   matchs(path) {
-    return this.__expression === null || this.defaults
-        ? true
-        : this.__expression.exec(path) !== null;
+    return this.__expression === null || this.defaults === true
+      ? true
+      : this.__expression.exec(path) !== null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+  }
+  updated() {
+    super.updated();
   }
 
   render() {
-     return html`
-        ${this.children}
-     `;
+    if (this.active !== true) {
+      return html``;
+    }
+    return html`
+      ${this.active ? this.children : null}
+    `;
   }
-};
-
+}
 
 customElements.define('switch-case', SwitchCase);
