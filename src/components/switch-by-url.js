@@ -49,7 +49,6 @@ export class SwitchBy extends LitElement {
       }
       const applys = this.childMatches(child);
       const defaults = child.getAttribute('defaults') !== null;
-      console.log('updateChildren', child, applys, this.__hash);
       child.active = applys || defaults;
       activated = child.active ? child : activated;
       child.requestUpdate();
@@ -129,8 +128,10 @@ export class SwitchCase extends LitElement {
   }
 
   applyParamsToChildren(params) {
+    if ( params === undefined || params === null ) {
+        return;
+    }
     const assignations = Object.entries(params);
-    console.log('assignations', assignations);
     if ( assignations.length === 0 ) {
         return;
     }
@@ -149,10 +150,15 @@ export class SwitchCase extends LitElement {
     if ( match === null ) {
         return false || this.defaults === true
     } else {
-        console.log('matchs',this.__expression.source, path, match);
         this.applyParamsToChildren(match.groups);
         return true;
     }
+  }
+
+  old_matchs(path) {
+    return this.__expression === null || this.defaults === true
+      ? true
+      : this.__expression.exec(path) !== null;
   }
 
   connectedCallback() {
