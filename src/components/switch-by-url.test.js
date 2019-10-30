@@ -94,7 +94,19 @@ describe('<switch-case>', () => {
     expect(el.shadowRoot.querySelectorAll('a').length).to.equal(0);
   });
 
-  it('should pass url params to its children', async () => {});
+  it('should pass url params to its children', async () => {
+    const el = await fixture(html`
+      <switch-case path="/hello/:id/test/:data"><sample>hello</sample></switch-case>
+    `);
+    const path = '/hello/1234/test/5678';
+    await elementUpdated(el);
+    el.matchs(path);
+    el.active = true;
+    await elementUpdated(el);
+    const sample = el.shadowRoot.querySelector('sample');
+    expect(sample.id).to.equal('1234');
+    expect(sample.data).to.equal('5678');
+  });
 });
 
 describe('expressionFromPath', () => {

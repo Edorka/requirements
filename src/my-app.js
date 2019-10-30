@@ -59,7 +59,7 @@ class MyApp extends LitElement {
           color: #a8a8a8;
           font-size: calc(10px + 0.5vmin);
         }
-        projects-view {
+        switch-by, projects-view {
             flex: 1 1 100%;
         }
       `,
@@ -79,7 +79,7 @@ class MyApp extends LitElement {
         </switch-case>
       </switch-by>
       <p class="app-footer">
-        🚽 Made with love by
+        🚽 Made with love b Eduardo Orive following 
         <a target="_blank" rel="noopener noreferrer" href="https://github.com/open-wc">open-wc</a>.
       </p>
     `;

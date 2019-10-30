@@ -49,6 +49,7 @@ export class SwitchBy extends LitElement {
       }
       const applys = this.childMatches(child);
       const defaults = child.getAttribute('defaults') !== null;
+      console.log('updateChildren', child, applys, this.__hash);
       child.active = applys || defaults;
       activated = child.active ? child : activated;
       child.requestUpdate();
@@ -127,10 +128,31 @@ export class SwitchCase extends LitElement {
     this.__expression = expressionFromPath(path);
   }
 
+  applyParamsToChildren(params) {
+    const assignations = Object.entries(params);
+    console.log('assignations', assignations);
+    if ( assignations.length === 0 ) {
+        return;
+    }
+    const assign = (child) => {
+        assignations.forEach( assignation => {
+            const [prop, value] = assignation;
+            child[prop] = value;
+        });
+    };
+    Array.from(this.children).forEach(assign);
+  }
+
   matchs(path) {
-    return this.__expression === null || this.defaults === true
-      ? true
-      : this.__expression.exec(path) !== null;
+    if ( this.__expression === null ) { return true; }
+    const match = this.__expression.exec(path);
+    if ( match === null ) {
+        return false || this.defaults === true
+    } else {
+        console.log('matchs',this.__expression.source, path, match);
+        this.applyParamsToChildren(match.groups);
+        return true;
+    }
   }
 
   connectedCallback() {
