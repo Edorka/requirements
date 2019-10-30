@@ -14,9 +14,7 @@ describe('<switch-by>', () => {
     `);
     window.location.path = '#/testing/';
     await elementUpdated(el);
-    expect(el.children.length).to.equal(1);
-    const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('defaults')).to.not.equal(null);
   });
@@ -33,10 +31,7 @@ describe('<switch-by>', () => {
     await elementUpdated(el);
     window.location.hash = '#/unkown/';
     window.dispatchEvent(new Event('hashchange'));
-    await elementUpdated(el);
-    expect(el.children.length).to.equal(3);
-    const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('defaults')).to.not.equal(null);
   });
@@ -49,13 +44,13 @@ describe('<switch-by>', () => {
         <switch-case defaults="true" path="/other">Other case</switch-case>
       </switch-by>
     `);
-    const previous = el.shadowRoot.querySelectorAll('switch-case');
+    await elementUpdated(el);
+    //expect(el.children.length).to.equal(3);
     window.location.hash = '#/test/';
     window.dispatchEvent(new Event('hashchange'));
     await elementUpdated(el);
-    expect(el.children.length).to.equal(3);
     const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('path')).to.equal('/test');
   });

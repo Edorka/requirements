@@ -7,10 +7,7 @@ export class SwitchBy extends LitElement {
         width: 100%;
         height: 100%;
       }
-      switch-case {
-        display: none;
-      }
-      switch-case.active {
+      .current {
         display: block;
       }
     `;
@@ -31,13 +28,17 @@ export class SwitchBy extends LitElement {
     return child.matchs(this.__hash);
   }
 
-  handleHashChange() {
+  handleHashChange(event) {
     const hash = window.location.hash.replace('#', '');
     if (this.__hash !== hash) {
       this.__hash = hash;
-      this.updateChildren();
+      this.requestUpdate();
     }
     return false;
+  }
+  update() {
+    this.updateChildren();
+    super.update();
   }
 
   updateChildren() {
@@ -53,6 +54,7 @@ export class SwitchBy extends LitElement {
       activated = child.active ? child : activated;
       child.requestUpdate();
     });
+    this.requestUpdate();
   }
 
   connectedCallback() {
@@ -69,7 +71,7 @@ export class SwitchBy extends LitElement {
     const activated = Array.from(this.children).find(child => child.active);
     return html`
       <div class="current">
-        ${activated !== undefined ? activated.render() : null}
+        ${activated}
       </div>
     `;
   }
@@ -155,18 +157,10 @@ export class SwitchCase extends LitElement {
     }
   }
 
-  old_matchs(path) {
-    return this.__expression === null || this.defaults === true
-      ? true
-      : this.__expression.exec(path) !== null;
-  }
-
   connectedCallback() {
     super.connectedCallback();
   }
-  updated() {
-    super.updated();
-  }
+
 
   render() {
     if (this.active !== true) {
