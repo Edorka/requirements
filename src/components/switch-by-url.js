@@ -7,10 +7,7 @@ export class SwitchBy extends LitElement {
         width: 100%;
         height: 100%;
       }
-      switch-case {
-        display: none;
-      }
-      switch-case.active {
+      .current {
         display: block;
       }
     `;
@@ -31,13 +28,17 @@ export class SwitchBy extends LitElement {
     return child.matchs(this.__hash);
   }
 
-  handleHashChange() {
+  handleHashChange(event) {
     const hash = window.location.hash.replace('#', '');
     if (this.__hash !== hash) {
       this.__hash = hash;
-      this.updateChildren();
+      this.requestUpdate();
     }
     return false;
+  }
+  update() {
+    this.updateChildren();
+    super.update();
   }
 
   updateChildren() {
@@ -48,11 +49,11 @@ export class SwitchBy extends LitElement {
         return;
       }
       const applys = this.childMatches(child);
-      const defaults = child.getAttribute('defaults') !== null;
-      child.active = applys || defaults;
-      activated = child.active ? child : activated;
+      child.active = applys;
+      activated = applys ? child : activated;
       child.requestUpdate();
     });
+    this.requestUpdate();
   }
 
   connectedCallback() {
@@ -69,7 +70,7 @@ export class SwitchBy extends LitElement {
     const activated = Array.from(this.children).find(child => child.active);
     return html`
       <div class="current">
-        ${activated !== undefined ? activated.render() : null}
+        ${activated}
       </div>
     `;
   }
@@ -127,25 +128,39 @@ export class SwitchCase extends LitElement {
     this.__expression = expressionFromPath(path);
   }
 
+  applyParamsToChildren(params) {
+    if ( params === undefined || params === null ) {
+        return;
+    }
+    const assignations = Object.entries(params);
+    const assign = (child) => {
+        assignations.forEach( assignation => {
+            const [prop, value] = assignation;
+            child[prop] = value;
+        });
+    };
+    Array.from(this.children).forEach(assign);
+  }
+
   matchs(path) {
-    return this.__expression === null || this.defaults === true
-      ? true
-      : this.__expression.exec(path) !== null;
+    if ( this.__expression === null ) { return true; }
+    const match = this.__expression.exec(path);
+    if ( match === null ) {
+        return false || this.defaults === true
+    } else {
+        this.applyParamsToChildren(match.groups);
+        return true;
+    }
   }
 
   connectedCallback() {
     super.connectedCallback();
   }
-  updated() {
-    super.updated();
-  }
+
 
   render() {
-    if (this.active !== true) {
-      return html``;
-    }
     return html`
-      ${this.active ? this.children : null}
+      ${this.active ? this.children : html``}
     `;
   }
 }

@@ -1,7 +1,8 @@
 import { LitElement, html, css } from 'lit-element';
 import { openWc } from './open-wc-logo';
-import { ProjectsView } from './features/projects/view';
 import { SwitchBy } from './components/switch-by-url.js';
+import { Requirements } from './features/requirements';
+import { ProjectsView } from './features/projects/view';
 
 const mainBgColor = css`#ff9800`;
 const mainBgColorDarker = css`#ef6c00`;
@@ -59,7 +60,7 @@ class MyApp extends LitElement {
           color: #a8a8a8;
           font-size: calc(10px + 0.5vmin);
         }
-        projects-view {
+        switch-by, projects-view {
             flex: 1 1 100%;
         }
       `,
@@ -72,14 +73,15 @@ class MyApp extends LitElement {
         <span class="title">Proquirements</span>
       </header>
       <switch-by >
-        <switch-case path="/true"><a>True</a></switch-case>
-        <switch-case path="/nope"><a>Nope</a></switch-case>
+        <switch-case path="/projects/:id">
+          <requirements-feature></requirements-featurex>
+        </switch-case>
         <switch-case path="/projects" defaults="true">
           <projects-view></projects-view>
         </switch-case>
       </switch-by>
       <p class="app-footer">
-        🚽 Made with love by
+        🚽 Made with love b Eduardo Orive following 
         <a target="_blank" rel="noopener noreferrer" href="https://github.com/open-wc">open-wc</a>.
       </p>
     `;

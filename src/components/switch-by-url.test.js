@@ -5,7 +5,7 @@ import { expressionFromPath } from './switch-by-url';
 
 const activeOnes = item => item.active === true;
 
-describe('<switch-by>', () => {
+describe('<switch-by-url>', () => {
   it('should put default case', async () => {
     const el = await fixture(html`
       <switch-by>
@@ -14,9 +14,7 @@ describe('<switch-by>', () => {
     `);
     window.location.path = '#/testing/';
     await elementUpdated(el);
-    expect(el.children.length).to.equal(1);
-    const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('defaults')).to.not.equal(null);
   });
@@ -33,15 +31,12 @@ describe('<switch-by>', () => {
     await elementUpdated(el);
     window.location.hash = '#/unkown/';
     window.dispatchEvent(new Event('hashchange'));
-    await elementUpdated(el);
-    expect(el.children.length).to.equal(3);
-    const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('defaults')).to.not.equal(null);
   });
 
-  it('should show test case from others', async () => {
+  it('should show particular case instead of others', async () => {
     const el = await fixture(html`
       <switch-by>
         <switch-case path="/bye">Bye</switch-case>
@@ -49,15 +44,32 @@ describe('<switch-by>', () => {
         <switch-case defaults="true" path="/other">Other case</switch-case>
       </switch-by>
     `);
-    const previous = el.shadowRoot.querySelectorAll('switch-case');
+    await elementUpdated(el);
     window.location.hash = '#/test/';
     window.dispatchEvent(new Event('hashchange'));
     await elementUpdated(el);
-    expect(el.children.length).to.equal(3);
     const children = Array.from(el.children);
-    const activated = children.filter(activeOnes);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
     expect(activated.length).to.equal(1);
     expect(activated[0].getAttribute('path')).to.equal('/test');
+  });
+  
+  it('matching first one will deactivate others', async () => {
+    const el = await fixture(html`
+      <switch-by>
+        <switch-case path="/first">First one!</switch-case>
+        <switch-case path="/test">This is a test</switch-case>
+        <switch-case defaults="true" path="/other">Other case</switch-case>
+      </switch-by>
+    `);
+    await elementUpdated(el);
+    window.location.hash = '#/first/';
+    window.dispatchEvent(new Event('hashchange'));
+    await elementUpdated(el);
+    const children = Array.from(el.children);
+    const activated = el.shadowRoot.querySelectorAll('.current switch-case');
+    expect(activated.length).to.equal(1);
+    expect(activated[0].getAttribute('path')).to.equal('/first');
   });
 });
 
@@ -94,7 +106,19 @@ describe('<switch-case>', () => {
     expect(el.shadowRoot.querySelectorAll('a').length).to.equal(0);
   });
 
-  it('should pass url params to its children', async () => {});
+  it('should pass url params to its children', async () => {
+    const el = await fixture(html`
+      <switch-case path="/hello/:id/test/:data"><sample>hello</sample></switch-case>
+    `);
+    const path = '/hello/1234/test/5678';
+    await elementUpdated(el);
+    el.matchs(path);
+    el.active = true;
+    await elementUpdated(el);
+    const sample = el.shadowRoot.querySelector('sample');
+    expect(sample.id).to.equal('1234');
+    expect(sample.data).to.equal('5678');
+  });
 });
 
 describe('expressionFromPath', () => {

@@ -72,7 +72,7 @@ export class ProjectListItem extends LitElement {
   }
 
   render() {
-    const resource = `#/project/${this.title}`;
+    const resource = `#/projects/${this.title}`;
     return html`
       <div class="row appears">
         <a href=${resource} class="title">${this.title}</a>
