@@ -1,13 +1,10 @@
-<p align="center">
-  <img width="200" src="https://open-wc.org/hero.png"></img>
-</p>
-
-[![Build Status](https://travis-ci.com/Edorka/requirements.svg?branch=master)](https://travis-ci.com/Edorka/requirements)
-
 # Project's requirements
+
+A small App to write down all the projects requirements.
 
 [![Built with open-wc recommendations](https://img.shields.io/badge/built%20with-open--wc-blue.svg)](https://github.com/open-wc)
 
+[![Build Status](https://travis-ci.com/Edorka/requirements.svg?branch=master)](https://travis-ci.com/Edorka/requirements)
 ## Quickstart
 
 To get started:
