@@ -46,6 +46,8 @@ describe('<create-project>', () => {
     setTimeout(() => button.dispatchEvent(falseClickEvent));
     const { detail } = await oneEvent(el, 'createproject');
     expect(detail.title).to.equal('this is a test');
+    expect(detail.id.length).to.equal(36);
+    expect(detail.requirements.length).to.equal(0);
   });
 
   it('should be disabled on empty title', async () => {
