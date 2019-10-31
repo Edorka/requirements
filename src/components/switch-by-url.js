@@ -49,9 +49,8 @@ export class SwitchBy extends LitElement {
         return;
       }
       const applys = this.childMatches(child);
-      const defaults = child.getAttribute('defaults') !== null;
-      child.active = applys || defaults;
-      activated = child.active ? child : activated;
+      child.active = applys;
+      activated = applys ? child : activated;
       child.requestUpdate();
     });
     this.requestUpdate();
@@ -134,9 +133,6 @@ export class SwitchCase extends LitElement {
         return;
     }
     const assignations = Object.entries(params);
-    if ( assignations.length === 0 ) {
-        return;
-    }
     const assign = (child) => {
         assignations.forEach( assignation => {
             const [prop, value] = assignation;
@@ -163,11 +159,8 @@ export class SwitchCase extends LitElement {
 
 
   render() {
-    if (this.active !== true) {
-      return html``;
-    }
     return html`
-      ${this.active ? this.children : null}
+      ${this.active ? this.children : html``}
     `;
   }
 }

@@ -11,6 +11,10 @@ module.exports = config => {
       ],
 
       // your custom config
+      coverageReporter:  {
+        type: 'html',
+        dir: 'coverage',
+      }
     }),
   );
   return config;
