@@ -24,11 +24,11 @@ export class SwitchBy extends LitElement {
     this.__hash = null;
   }
 
-  childMatches(child, index) {
+  childMatches(child) {
     return child.matchs(this.__hash);
   }
 
-  handleHashChange(event) {
+  handleHashChange() {
     const hash = window.location.hash.replace('#', '');
     if (this.__hash !== hash) {
       this.__hash = hash;
@@ -36,6 +36,7 @@ export class SwitchBy extends LitElement {
     }
     return false;
   }
+
   update() {
     this.updateChildren();
     super.update();
@@ -111,10 +112,12 @@ export class SwitchCase extends LitElement {
       }
     `;
   }
+
   static get properties() {
     return {
       path: { type: String },
       active: { type: Boolean },
+      defaults: { type: Boolean },
     };
   }
 
@@ -147,10 +150,10 @@ export class SwitchCase extends LitElement {
     const match = this.__expression.exec(path);
     if ( match === null ) {
         return false || this.defaults === true
-    } else {
+    } 
         this.applyParamsToChildren(match.groups);
         return true;
-    }
+    
   }
 
   connectedCallback() {
