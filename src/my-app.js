@@ -16,6 +16,7 @@ class MyApp extends LitElement {
 
   constructor() {
     super();
+    this.projects = [];
   }
 
   static get styles() {
@@ -74,10 +75,10 @@ class MyApp extends LitElement {
       </header>
       <switch-by >
         <switch-case path="/projects/:id">
-          <requirements-feature></requirements-featurex>
+          <requirements-feature projects=${this.projects}></requirements-featurex>
         </switch-case>
         <switch-case path="/projects" defaults="true">
-          <projects-view></projects-view>
+          <projects-view projects=${this.projects} ></projects-view>
         </switch-case>
       </switch-by>
       <p class="app-footer">
