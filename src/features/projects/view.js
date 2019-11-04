@@ -21,36 +21,64 @@ export class ProjectsView extends LitElement {
   static get properties() {
     return {
       projects: { type: Array },
+      error: { type: String },
     };
   }
 
   constructor() {
     super();
-    this.projects = [];
+    this.projects = null;
+    this.error = null;
     this.__createProject = this.__createProject.bind(this);
     this.__removeProject = this.__removeProject.bind(this);
+    this.__receiveResponse = this.__receiveResponse.bind(this);
+  }
+
+  setProjects(projects) {
+    this.projects = projects;
+    this.requestUpdate();
+  }
+
+  async __receiveResponse(response) {
+    let data = {};
+    try {
+      const { status } = response;
+      data = await response.json();
+      if (status <= 300 && status >= 200) {
+        this.setProjects(data.items);
+      } else {
+        throw new Error(data.reason);
+      }
+    } catch (error) {
+      this.error = error;
+    }
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.shadowRoot.addEventListener('createproject', this.__createProject);
-    this.shadowRoot.addEventListener('removeproject', this.__removeProject);
+    const APIHost = 'http://localhost:3000';
+    this.errors = null;
+    fetch(APIHost + '/projects')
+      .then(this.__receiveResponse)
+      .catch(error => (this.error = error.reason));
+    this.shadowRoot.addEventListener('project-created', this.__createProject);
+    this.shadowRoot.addEventListener('project-removed', this.__removeProject);
   }
 
   disconnectedCallback() {
-    this.shadowRoot.removeEventListener('createproject', this.__createProject);
-    this.shadowRoot.removeEventListener('removeproject', this.__removeProject);
+    this.shadowRoot.removeEventListener('project-created', this.__createProject);
+    this.shadowRoot.removeEventListener('project-removed', this.__removeProject);
     super.disconnectedCallback();
   }
 
   __createProject(e) {
-    const {detail} = e;
-    this.projects = [ ...this.projects,  {title: detail.title, children: []}];
+    const { detail } = e;
+    this.projects = [...this.projects, { title: detail.title, children: [] }];
   }
 
   __removeProject(e) {
-    const {detail} = e;
-    const {target} = detail;
+    const { detail } = e;
+    const { target } = detail;
     this.projects = this.projects.filter(project => project.title !== target.title);
   }
 
@@ -58,11 +86,25 @@ export class ProjectsView extends LitElement {
     return html`
       <h1>Projects:</h1>
       <create-project></create-project>
-      ${this.projects.length === 0 
-        ? html`<div id="no-projects-found" >No projects</div>`
-        : this.projects.map( project => 
-            html`<project-list-item .title=${project.title}></project-list-item>`)
-      }
+      ${this.error === null
+        ? html``
+        : html`
+            <div class="error">${this.error}</div>
+          `}
+      ${this.projects === null || this.projects === undefined
+        ? html`
+            <div id="loading-data">Loading projects...</div>
+          `
+        : this.projects.length === 0
+        ? html`
+            <div id="no-projects-found">No projects</div>
+          `
+        : this.projects.map(
+            project =>
+              html`
+                <project-list-item .title=${project.title}></project-list-item>
+              `,
+          )}
     `;
   }
 }
