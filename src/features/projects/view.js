@@ -61,13 +61,13 @@ export class ProjectsView extends LitElement {
     fetch(APIHost + '/projects')
       .then(this.__receiveResponse)
       .catch(error => (this.error = error.reason));
-    this.shadowRoot.addEventListener('createproject', this.__createProject);
-    this.shadowRoot.addEventListener('removeproject', this.__removeProject);
+    this.shadowRoot.addEventListener('project-created', this.__createProject);
+    this.shadowRoot.addEventListener('project-removed', this.__removeProject);
   }
 
   disconnectedCallback() {
-    this.shadowRoot.removeEventListener('createproject', this.__createProject);
-    this.shadowRoot.removeEventListener('removeproject', this.__removeProject);
+    this.shadowRoot.removeEventListener('project-created', this.__createProject);
+    this.shadowRoot.removeEventListener('project-removed', this.__removeProject);
     super.disconnectedCallback();
   }
 

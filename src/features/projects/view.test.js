@@ -9,14 +9,14 @@ function mockCreateProjectEvent(el, title) {
   const creation = el.shadowRoot.querySelector('create-project');
   const bubbles = true;
   const detail = { title };
-  const createProjectEvent = new CustomEvent('createproject', { detail, bubbles });
+  const createProjectEvent = new CustomEvent('project-created', { detail, bubbles });
   creation.dispatchEvent(createProjectEvent);
 }
 
 function mockRemoveProjectEvent(target) {
   const detail = { target };
   const bubbles = true;
-  const createProjectEvent = new CustomEvent('removeproject', { detail, bubbles });
+  const createProjectEvent = new CustomEvent('project-removed', { detail, bubbles });
   target.dispatchEvent(createProjectEvent);
 }
 const APIHost = 'http://localhost:3000';
