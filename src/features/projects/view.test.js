@@ -33,7 +33,6 @@ describe('<projects-view>', () => {
       <projects-view></projects-view>
     `);
     await elementUpdated(el);
-    console.log('loading', el.shadowRoot);
     const obtained = el.shadowRoot.getElementById('loading-data');
     expect(obtained.textContent).to.equal('Loading projects...');
   });
