@@ -34,7 +34,8 @@
     "owc-dev-server": "^0.1.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.6.0",
-    "webpack-merge": "^4.1.5"
+    "webpack-merge": "^4.1.5",
+    "fetch-mock": "^8.0.0-alpha.14"
   },
   "lint-staged": {
     "*.js": [
@@ -46,7 +47,7 @@
   "name": "projects-terms",
   "license": "MIT",
   "dependencies": {
-    "lit-html": "^1.0.0",
-    "lit-element": "^2.0.1"
+    "lit-element": "^2.0.1",
+    "lit-html": "^1.0.0"
   }
 }
