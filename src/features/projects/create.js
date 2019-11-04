@@ -1,13 +1,5 @@
 import { html, css, LitElement } from 'lit-element';
 
-function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
 const APIHost = 'http://localhost:3000';
 
 export class CreateProject extends LitElement {
@@ -89,14 +81,19 @@ export class CreateProject extends LitElement {
     let result = null;
     try {
       confirmation = await response.json();
-      if (confirmation === null || confirmation.id === undefined) {
-        throw new Error("Can't confirm saving");
+      if (confirmation.error === true) {
+        throw confirmation;
       }
       result = { done: true, confirmation };
       this.title = '';
     } catch (error) {
-      this.error = confirmation.reason || error;
-      result = { done: false, error };
+      const report = error instanceof SyntaxError
+         ? undefined 
+         : error.reason !== undefined
+            ? error.reason
+            : undefined
+      this.error = report || 'Can\'t confirm saving';
+      result = { done: false, error: this.error };
     }
     const bubbles = true;
     const resultEvent = new CustomEvent('project-created', {

@@ -103,4 +103,49 @@ describe('<create-project>', () => {
     expect(errorMessage.textContent).to.equal('Error: DB is full');
     expect(input.value).to.equal('this will fail');
   });
+
+  it('should show error default error if POST result wont parse', async () => {
+    const report = '<div>Generic 502 error</div>';
+    const confirmation = new Response(report, { status: 502 });
+    const mock = fetchMock.post(APIHost + '/projects', confirmation);
+    const el = await fixture(html`
+      <create-project></create-project>
+    `);
+    const input = el.shadowRoot.querySelector('input');
+    const button = el.shadowRoot.querySelector('button');
+    el.title = 'this will fail';
+    const falseClickEvent = new Event('click', { bubbles: true });
+    setTimeout(() => button.dispatchEvent(falseClickEvent));
+    await elementUpdated(el);
+    await mock.flush();
+    const { detail } = await oneEvent(el, 'project-created');
+    const { done, error } = detail;
+    expect(done).to.equal(false);
+    expect(error).to.not.equal(undefined);
+    const errorMessage = el.shadowRoot.querySelector('.error');
+    expect(errorMessage).to.not.equal(null);
+    expect(errorMessage.textContent).to.equal('Error: Can\'t confirm saving');
+    expect(input.value).to.equal('this will fail');
+  });
+
+  it('should show error default error if POST result has not reason', async () => {
+    const report = '{"error": true}';
+    const confirmation = new Response(report, { status: 502 });
+    const mock = fetchMock.post(APIHost + '/projects', confirmation);
+    const el = await fixture(html`
+      <create-project></create-project>
+    `);
+    const input = el.shadowRoot.querySelector('input');
+    const button = el.shadowRoot.querySelector('button');
+    el.title = 'this will fail';
+    const falseClickEvent = new Event('click', { bubbles: true });
+    setTimeout(() => button.dispatchEvent(falseClickEvent));
+    await elementUpdated(el);
+    await mock.flush();
+    const { detail } = await oneEvent(el, 'project-created');
+    const errorMessage = el.shadowRoot.querySelector('.error');
+    expect(errorMessage).to.not.equal(null);
+    expect(errorMessage.textContent).to.equal('Error: Can\'t confirm saving');
+    expect(input.value).to.equal('this will fail');
+  });
 });
