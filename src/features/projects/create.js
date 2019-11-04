@@ -77,10 +77,9 @@ export class CreateProject extends LitElement {
     }).then(response => this.__receiveResponse(response));
   }
   async __receiveResponse(response) {
-    let confirmation = null;
     let result = null;
     try {
-      confirmation = await response.json();
+      const confirmation = await response.json();
       if (confirmation.error === true) {
         throw confirmation;
       }
