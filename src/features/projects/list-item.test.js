@@ -22,7 +22,7 @@ describe('<projects-list-item>', () => {
     const removeButton = el.shadowRoot.querySelector('.row .remove');
     const falseClickEvent = new Event('click', { bubbles: true });
     setTimeout(() => removeButton.dispatchEvent(falseClickEvent));
-    const { detail } = await oneEvent(el, 'removeproject');
+    const { detail } = await oneEvent(el, 'project-removed');
     expect(detail.target.title).to.equal('Sample project');
   });
 });

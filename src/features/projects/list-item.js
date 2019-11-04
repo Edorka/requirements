@@ -68,7 +68,7 @@ export class ProjectListItem extends LitElement {
   remove(event) {
     const detail = { target: this };
     const bubbles = true;
-    this.dispatchEvent(new CustomEvent('removeproject', {bubbles, detail}) );
+    this.dispatchEvent(new CustomEvent('project-removed', {bubbles, detail}) );
   }
 
   render() {
