@@ -22,13 +22,12 @@ export class Requirements extends LitElement {
       error: { type: String },
     };
   }
-    constructor() {
-        super();
-        this.project = null;
-        this.error = null;
-        this.__receiveResponse = this.__receiveResponse.bind(this);
-    }
-
+  constructor() {
+    super();
+    this.project = null;
+    this.error = null;
+    this.__receiveResponse = this.__receiveResponse.bind(this);
+  }
 
   firstUpdated(changedProperties) {
     this.__requestProjectData();
@@ -37,16 +36,16 @@ export class Requirements extends LitElement {
 
   __requestProjectData() {
     const { id } = this;
-    if ( id === undefined ) { 
-        return;
+    if (id === undefined) {
+      return;
     }
     this.error = null;
     this.project = null;
-    fetch(APIHost + '/projects/'+ id)
+    fetch(APIHost + '/projects/' + id)
       .then(this.__receiveResponse)
       .catch(error => (this.error = error.reason));
   }
- 
+
   async __receiveResponse(response) {
     let data = {};
     try {
@@ -58,9 +57,8 @@ export class Requirements extends LitElement {
         throw data;
       }
     } catch (error) {
-      this.error = error.reason !== undefined
-        ? `Error: ${error.reason}` 
-        : 'Error: can\'t load project';
+      this.error =
+        error.reason !== undefined ? `Error: ${error.reason}` : "Error: can't load project";
       this.project = null;
     }
     this.requestUpdate();
@@ -68,18 +66,35 @@ export class Requirements extends LitElement {
 
   render() {
     if (this.error !== null) {
-        return html`
-            <div id="error-loading-project" class="error centered">
-                ${this.error}
-            </div>`;
+      return html`
+        <div id="error-loading-project" class="error centered">
+          ${this.error}
+        </div>
+      `;
     }
     if (this.project === null) {
-        return html`<div id="loading-project" class="centered">Loading...</div>`;
+      return html`
+        <div id="loading-project" class="centered">Loading...</div>
+      `;
     }
+    const { title, requirements = [] } = this.project;
     return html`
       <div id="project-wrapper">
-        <div class="title">${this.project.title}</div>
-      ${this.id}
+        <div class="title">${title}</div>
+        <div class="requirements">
+          ${requirements.map(
+            project =>
+              html`
+                <project-requirement
+                  .id=${project.id}
+                  .title=${project.title}
+                  .requirements=${project.requirements}
+                >
+                </project-requirement>
+              `,
+          )}
+          <div></div>
+        </div>
       </div>
     `;
   }
