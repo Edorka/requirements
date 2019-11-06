@@ -6,6 +6,8 @@ import './index.js';
 const APIHost = 'http://localhost:3000';
 fetchMock.config.sendAsJson = true;
 
+const onlyContent = (element) => 
+    element.textContent.replace(/[\n\r]+|[\s]{2,}/g, ' ').trim();
 
 describe('<requirements-feature>', () => {
   afterEach(() => {
@@ -37,8 +39,39 @@ describe('<requirements-feature>', () => {
     const wrapper = el.shadowRoot.getElementById('project-wrapper');
     expect(wrapper).to.not.equal(null);
     const title = wrapper.querySelector('.title');
-
     expect(title).to.not.equal(null);
-    expect(title.textContent).to.equal('A test');
+    expect(onlyContent(title)).to.equal('A test');
+  });
+
+  it('should show generic error', async () => {
+    const error = { error: true, reason: 'something went wrong' };
+    const failure = new Response(error, { status: 500 });
+    const mock = fetchMock.mock(APIHost + '/projects/1', {
+      body: JSON.stringify({ error: true }),
+      status: 500,
+    });
+    const el = await fixture(html`
+      <requirements-feature .id=${1}></requirements-feature>
+    `);
+    await mock.flush();
+    await elementUpdated(el);
+    const reports = el.shadowRoot.querySelector('.error');
+    expect(onlyContent(reports)).to.equal('Error: can\'t load project');
+  });
+
+  it('should show error\'s reason ', async () => {
+    const error = { error: true, reason: 'something went wrong' };
+    const failure = new Response(error, { status: 500 });
+    const mock = fetchMock.mock(APIHost + '/projects/1', {
+      body: JSON.stringify({ error: true, reason: 'Project [1] was not found' }),
+      status: 404,
+    });
+    const el = await fixture(html`
+      <requirements-feature .id=${1}></requirements-feature>
+    `);
+    await mock.flush();
+    await elementUpdated(el);
+    const reports = el.shadowRoot.querySelector('.error');
+    expect(onlyContent(reports)).to.equal('Error: Project [1] was not found');
   });
 });

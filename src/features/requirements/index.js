@@ -25,6 +25,7 @@ export class Requirements extends LitElement {
     constructor() {
         super();
         this.project = null;
+        this.error = null;
         this.__receiveResponse = this.__receiveResponse.bind(this);
     }
 
@@ -36,10 +37,11 @@ export class Requirements extends LitElement {
 
   __requestProjectData() {
     const { id } = this;
-    console.log('__requestProjectData', id);
     if ( id === undefined ) { 
         return;
     }
+    this.error = null;
+    this.project = null;
     fetch(APIHost + '/projects/'+ id)
       .then(this.__receiveResponse)
       .catch(error => (this.error = error.reason));
@@ -53,14 +55,24 @@ export class Requirements extends LitElement {
       if (status === 200) {
         this.project = data;
       } else {
-        throw new Error(data.reason);
+        throw data;
       }
     } catch (error) {
-      this.error = error;
+      this.error = error.reason !== undefined
+        ? `Error: ${error.reason}` 
+        : 'Error: can\'t load project';
+      this.project = null;
     }
+    this.requestUpdate();
   }
 
   render() {
+    if (this.error !== null) {
+        return html`
+            <div id="error-loading-project" class="error centered">
+                ${this.error}
+            </div>`;
+    }
     if (this.project === null) {
         return html`<div id="loading-project" class="centered">Loading...</div>`;
     }
