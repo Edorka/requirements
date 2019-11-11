@@ -1,5 +1,7 @@
 import { html, css, LitElement } from 'lit-element';
 
+const APIHost = 'http://localhost:3000';
+
 export class Requirements extends LitElement {
   static get styles() {
     return css`
@@ -13,10 +15,87 @@ export class Requirements extends LitElement {
     `;
   }
 
+  static get properties() {
+    return {
+      project: { type: Object },
+      id: { type: String },
+      error: { type: String },
+    };
+  }
+  constructor() {
+    super();
+    this.project = null;
+    this.error = null;
+    this.__receiveResponse = this.__receiveResponse.bind(this);
+  }
+
+  firstUpdated(changedProperties) {
+    this.__requestProjectData();
+    super.firstUpdated(changedProperties);
+  }
+
+  __requestProjectData() {
+    const { id } = this;
+    if (id === undefined) {
+      return;
+    }
+    this.error = null;
+    this.project = null;
+    fetch(APIHost + '/projects/' + id)
+      .then(this.__receiveResponse);
+  }
+
+  async __receiveResponse(response) {
+    let data = {};
+    try {
+      const { status } = response;
+      data = await response.json();
+      if (status === 200) {
+        this.project = data;
+      } else {
+        throw data;
+      }
+    } catch (error) {
+      this.error =
+        error.reason !== undefined 
+          ? `Error: ${error.reason}`
+          : "Error: can't load project";
+      this.project = null;
+    }
+    this.requestUpdate();
+  }
+
   render() {
+    if (this.error !== null) {
+      return html`
+        <div id="error-loading-project" class="error centered">
+          ${this.error}
+        </div>
+      `;
+    }
+    if (this.project === null) {
+      return html`
+        <div id="loading-project" class="centered">Loading...</div>
+      `;
+    }
+    const { title, requirements = [] } = this.project;
     return html`
-      <div class="row appears">
-      ${this.id}
+      <div id="project-wrapper">
+        <div class="title">${title}</div>
+        <div class="requirements">
+          ${requirements.map(
+            ({ id, title, requirements = [] }) =>
+              html`
+                <project-requirement
+                  .id=${id}
+                  .title=${title}
+                  .requirements=${requirements}
+                >
+                </project-requirement>
+              `,
+          )}
+          <div></div>
+        </div>
       </div>
     `;
   }
