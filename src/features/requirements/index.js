@@ -42,8 +42,7 @@ export class Requirements extends LitElement {
     this.error = null;
     this.project = null;
     fetch(APIHost + '/projects/' + id)
-      .then(this.__receiveResponse)
-      .catch(error => (this.error = error.reason));
+      .then(this.__receiveResponse);
   }
 
   async __receiveResponse(response) {
@@ -58,7 +57,9 @@ export class Requirements extends LitElement {
       }
     } catch (error) {
       this.error =
-        error.reason !== undefined ? `Error: ${error.reason}` : "Error: can't load project";
+        error.reason !== undefined 
+          ? `Error: ${error.reason}`
+          : "Error: can't load project";
       this.project = null;
     }
     this.requestUpdate();
@@ -83,12 +84,12 @@ export class Requirements extends LitElement {
         <div class="title">${title}</div>
         <div class="requirements">
           ${requirements.map(
-            project =>
+            ({ id, title, requirements = [] }) =>
               html`
                 <project-requirement
-                  .id=${project.id}
-                  .title=${project.title}
-                  .requirements=${project.requirements}
+                  .id=${id}
+                  .title=${title}
+                  .requirements=${requirements}
                 >
                 </project-requirement>
               `,

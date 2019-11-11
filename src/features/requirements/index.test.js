@@ -23,13 +23,13 @@ describe('<requirements-feature>', () => {
     expect(obtained.textContent).to.equal('Loading...');
   });
 
-  it("should show project's title and requiremnts after loading", async () => {
+  it("should show project's title and requirements after loading", async () => {
     const data = {
       title: 'A test',
       requirements: [
-        { id: 1, title: 'First requirement', children: [] },
-        { id: 2, title: 'Second requirement', children: [] },
-        { id: 3, title: 'Third requirement', children: [] },
+        { id: 1, title: 'First requirement', requirements: [] },
+        { id: 2, title: 'Second requirement', requirements: [] },
+        { id: 3, title: 'Third requirement', requirements: [] },
       ],
     };
     const mock = fetchMock.get(APIHost + '/projects/1', data);
@@ -40,7 +40,6 @@ describe('<requirements-feature>', () => {
     await mock.flush();
     await elementUpdated(el);
     const wrapper = el.shadowRoot.getElementById('project-wrapper');
-    console.log('shadowRoot', el.shadowRoot);
     expect(wrapper).to.not.equal(null);
     const title = wrapper.querySelector('.title');
     expect(title).to.not.equal(null);
@@ -48,10 +47,25 @@ describe('<requirements-feature>', () => {
     const requirements = wrapper.querySelectorAll('project-requirement');
     expect(requirements.length).to.equal(3);
   });
+  it("should show project's title, requirements may be undefined", async () => {
+    const data = {
+      title: 'A test'
+    };
+    const mock = fetchMock.get(APIHost + '/projects/1', data);
+    const el = await fixture(html`
+      <requirements-feature .id=${1}></requirements-feature>
+    `);
+    await elementUpdated(el);
+    await mock.flush();
+    await elementUpdated(el);
+    const wrapper = el.shadowRoot.getElementById('project-wrapper');
+    const requirements = wrapper.querySelectorAll('project-requirement');
+    expect(requirements.length).to.equal(0);
+  });
+
 
   it('should show generic error', async () => {
     const error = { error: true, reason: 'something went wrong' };
-    const failure = new Response(error, { status: 500 });
     const mock = fetchMock.mock(APIHost + '/projects/1', {
       body: JSON.stringify({ error: true }),
       status: 500,
@@ -67,7 +81,6 @@ describe('<requirements-feature>', () => {
 
   it("should show error's reason ", async () => {
     const error = { error: true, reason: 'something went wrong' };
-    const failure = new Response(error, { status: 500 });
     const mock = fetchMock.mock(APIHost + '/projects/1', {
       body: JSON.stringify({ error: true, reason: 'Project [1] was not found' }),
       status: 404,
