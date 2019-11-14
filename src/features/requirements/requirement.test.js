@@ -90,7 +90,7 @@ describe('<requirements-feature> saving behaviors', () => {
     fetchMock.restore();
   });
 
-  it('should save on save button click', async () => {
+  it('should update on save button click', async () => {
     const title = 'Old test title';
     const newTitle = 'Expected another title';
     const confirmation = {
@@ -129,7 +129,6 @@ describe('<requirements-feature> saving behaviors', () => {
     const title = 'Old test title';
     const newTitle = 'Expected another title';
     const error = { error: true, reason: 'something went wrong' };
-    const failure = new Response(error, { status: 500 });
     const mock = fetchMock.patch(APIHost + '/requirements/1', {
       body: JSON.stringify({
         error: true,
@@ -162,5 +161,40 @@ describe('<requirements-feature> saving behaviors', () => {
     const errorSpan = el.shadowRoot.querySelector('.error');
     expect(errorSpan).to.not.equal(null);
     expect(errorSpan.textContent).to.equal('Requirement [1] was not found');
+  });
+
+  it('should show an error if failed to save', async () => {
+    const title = 'Old test title';
+    const newTitle = 'Expected another title';
+    const nonJSONError = '<h1>Bad gateway 502</h1>';
+    const mock = fetchMock.patch(APIHost + '/requirements/1', {
+      body: nonJSONError,
+      status: 404,
+    });
+    const el = await fixture(html`
+      <project-requirement .id=${1} .title=${title}></project-requirement>
+    `);
+    await elementUpdated(el);
+    const titleSpan = el.shadowRoot.querySelector('.title');
+    expect(titleSpan.textContent).to.equal(title);
+    const falseClickEvent = new Event('click', { bubbles: true });
+    setTimeout(() => titleSpan.dispatchEvent(falseClickEvent));
+    await oneEvent(el, 'requirement-edition');
+    await elementUpdated(el);
+    const input = el.shadowRoot.querySelector('input');
+    input.value = newTitle;
+    const falseChangeEvent = new Event('change', { bubbles: true });
+    const button = el.shadowRoot.querySelector('button[name="save"]');
+    expect(button).to.not.equal(null);
+    input.dispatchEvent(falseChangeEvent);
+    await elementUpdated(el);
+    expect(button.getAttribute('disabled')).to.equal(null);
+    setTimeout(() => button.dispatchEvent(falseClickEvent));
+    await mock.flush();
+    await oneEvent(el, 'requirement-saved');
+    await elementUpdated(el);
+    const errorSpan = el.shadowRoot.querySelector('.error');
+    expect(errorSpan).to.not.equal(null);
+    expect(errorSpan.textContent).to.equal("Can't confirm saving");
   });
 });

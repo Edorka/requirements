@@ -23,6 +23,7 @@ export class ProjectRequirement extends LitElement {
   constructor() {
     super();
     this.editing = false;
+    this.error = null;
     this.__receiveResponse = this.__receiveResponse.bind(this);
   }
   editionChange(event) {

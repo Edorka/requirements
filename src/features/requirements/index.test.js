@@ -93,4 +93,74 @@ describe('<requirements-feature>', () => {
     const reports = el.shadowRoot.querySelector('.error');
     expect(onlyContent(reports)).to.equal('Error: Project [1] was not found');
   });
+
+  it('should add new sub-requirements on event', async () => {
+    const data = {
+      title: 'A test',
+      requirements: [
+        { id: 1, title: 'First requirement', requirements: [] },
+        { id: 2, title: 'Second requirement', requirements: [] },
+        { id: 3, title: 'Third requirement', requirements: [] },
+      ],
+    };
+    const mock = fetchMock.get(APIHost + '/projects/1', {
+        body: JSON.stringify(data),
+        status: 200, 
+    });
+    const el = await fixture(html`
+      <requirements-feature .id=${1}></requirements-feature>
+    `);
+    await elementUpdated(el);
+    await mock.flush();
+    await elementUpdated(el);
+   let requirements = el.shadowRoot.querySelectorAll('project-requirement');
+   expect(requirements.length).to.equal(3);
+   const bubbles = true;
+   const detail = {
+       done: true,
+       requirement: {
+           id: 1, title: 'Expected title', projectId: 123, parentId: 321
+       }
+   };
+    const created = new CustomEvent('requirement-created', {bubbles, detail});
+    const source = el.shadowRoot.querySelector('create-requirement');
+    el.shadowRoot.dispatchEvent(created);
+   await elementUpdated(el);
+   requirements = el.shadowRoot.querySelectorAll('project-requirement');
+   expect(requirements.length).to.equal(4);
+  });
+
+  it('should ignore sub-requirements on event failed', async () => {
+    const data = {
+      title: 'A test',
+      requirements: [
+        { id: 1, title: 'First requirement', requirements: [] },
+        { id: 2, title: 'Second requirement', requirements: [] },
+        { id: 3, title: 'Third requirement', requirements: [] },
+      ],
+    };
+    const mock = fetchMock.get(APIHost + '/projects/1', {
+        body: JSON.stringify(data),
+        status: 200, 
+    });
+    const el = await fixture(html`
+      <requirements-feature .id=${1}></requirements-feature>
+    `);
+    await elementUpdated(el);
+    await mock.flush();
+    await elementUpdated(el);
+   let requirements = el.shadowRoot.querySelectorAll('project-requirement');
+   expect(requirements.length).to.equal(3);
+   const bubbles = true;
+   const detail = {
+       error: true,
+       reason: 'title is empty'
+   };
+    const created = new CustomEvent('requirement-created', {bubbles, detail});
+    const source = el.shadowRoot.querySelector('create-requirement');
+    el.shadowRoot.dispatchEvent(created);
+   await elementUpdated(el);
+   requirements = el.shadowRoot.querySelectorAll('project-requirement');
+   expect(requirements.length).to.equal(3);
+  });
 });

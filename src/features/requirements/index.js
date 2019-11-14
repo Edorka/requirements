@@ -1,4 +1,5 @@
 import { html, css, LitElement } from 'lit-element';
+import './create-requirement';
 
 const APIHost = 'http://localhost:3000';
 
@@ -27,13 +28,22 @@ export class Requirements extends LitElement {
     this.project = null;
     this.error = null;
     this.__receiveResponse = this.__receiveResponse.bind(this);
+    this.__handleNewRequirement = this.__handleNewRequirement.bind(this);
   }
 
   firstUpdated(changedProperties) {
+    this.shadowRoot.addEventListener('requirement-created', this.__handleNewRequirement);
     this.__requestProjectData();
     super.firstUpdated(changedProperties);
   }
 
+  __handleNewRequirement(event) {
+    const { detail } = event;
+    if ( detail.done !== true ) { return; }
+    const { requirement } = detail;
+    this.project.requirements = [...this.project.requirements, requirement];
+    this.requestUpdate();
+  }
   __requestProjectData() {
     const { id } = this;
     if (id === undefined) {
@@ -94,7 +104,10 @@ export class Requirements extends LitElement {
                 </project-requirement>
               `,
           )}
-          <div></div>
+          <div>
+            <create-requirement .projectId=${this.project.id}>
+            </create-requirement>
+          </div>
         </div>
       </div>
     `;
