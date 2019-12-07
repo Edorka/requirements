@@ -83,7 +83,28 @@ describe('<project-requirement>', () => {
     expect(titleSpanAgain).to.not.equal(null);
     expect(titleSpanAgain.textContent).to.equal(title);
   });
+
+  it('will should show new requirement', async () => {
+    const title = 'Expected test title';
+    const el = await fixture(html`
+      <project-requirement .id=${1} .title=${title}></project-requirement>
+    `);
+    await elementUpdated(el);
+    const detail = {
+      id: '3',
+      title: 'Sub requirement'
+    };
+    const creationEvent = new CustomEvent('requirement-created', {
+      bubbles: true,
+      detail,
+    });
+    el.shadowRoot.dispatchEvent(creationEvent);
+    await elementUpdated(el);
+    const created = el.shadowRoot.querySelectorAll('project-requirement');
+    expect(created.length).to.equal(1);
+  });
 });
+
 describe('<requirements-feature> saving behaviors', () => {
   afterEach(() => {
     fetchMock.reset();
@@ -163,7 +184,7 @@ describe('<requirements-feature> saving behaviors', () => {
     expect(errorSpan.textContent).to.equal('Requirement [1] was not found');
   });
 
-  it('should show an error if failed to save', async () => {
+  it('should show an error even if it comes not as JSON', async () => {
     const title = 'Old test title';
     const newTitle = 'Expected another title';
     const nonJSONError = '<h1>Bad gateway 502</h1>';
@@ -197,4 +218,5 @@ describe('<requirements-feature> saving behaviors', () => {
     expect(errorSpan).to.not.equal(null);
     expect(errorSpan.textContent).to.equal("Can't confirm saving");
   });
+
 });
