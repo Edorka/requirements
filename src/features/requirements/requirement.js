@@ -18,6 +18,7 @@ export class ProjectRequirement extends LitElement {
     return {
       title: { type: String },
       id: { type: String },
+      requirements: { type: Array },
     };
   }
   constructor() {
@@ -25,6 +26,7 @@ export class ProjectRequirement extends LitElement {
     this.editing = false;
     this.error = null;
     this.__receiveResponse = this.__receiveResponse.bind(this);
+    this.__subCreated = this.__subCreated.bind(this);
   }
   editionChange(event) {
     this.editing = event.target.value;
@@ -44,6 +46,10 @@ export class ProjectRequirement extends LitElement {
   clickedSave(event) {
     this.__requestSave();
   }
+  connectedCallback() {
+    super.connectedCallback();
+    this.shadowRoot.addEventListener('requirement-created', this.__subCreated);
+  }
   __requestSave() {
     const { id, title } = this;
     if (id === undefined) {
@@ -57,6 +63,15 @@ export class ProjectRequirement extends LitElement {
         'Content-Type': 'application/json',
       },
     }).then(this.__receiveResponse);
+  }
+  __subCreated(event) {
+    const { detail } = event;
+    if (this.requirements === undefined ) {
+      this.requirements = [detail];
+    } else {
+      this.requirements = [...this.requirements, detail];
+    }
+    this.requestUpdate();
   }
   async __receiveResponse(response) {
     let result = null;
@@ -91,29 +106,50 @@ export class ProjectRequirement extends LitElement {
     this.editing = false;
     this.requestUpdate();
   }
-  render() {
-    if (this.editing !== false) {
-      return html`
-            <input type="text" 
-                value=${this.editing} 
-                @change=${this.editionChange}>
-            </input>   
-            <button class="small" name="save"
-                @click=${this.clickedSave}
-                ?disabled=${this.didntChanged}></button>
-            <button class="small" name="cancel"
-                @click=${this.cancel}></button>
-            ${
-              this.error !== null
-                ? html`
-                    <span class="error">${this.error}</span>
-                  `
-                : ''
-            }
-        `;
-    }
+  renderEdition() {
+   return html`
+        <input type="text" 
+            value=${this.editing} 
+            @change=${this.editionChange}>
+        </input>   
+        <button class="small" name="save"
+            @click=${this.clickedSave}
+            ?disabled=${this.didntChanged}></button>
+        <button class="small" name="cancel"
+            @click=${this.cancel}></button>
+        ${
+          this.error !== null
+            ? html`
+                <span class="error">${this.error}</span>
+              `
+            : ''
+        }
+    `; 
+  }
+  renderShow() {
     return html`
-      <span class="title" @click=${this.toEditionMode}>${this.title}</span>
+      <span class="title" 
+        @click=${this.toEditionMode}
+        >${this.title}</span>
+    `;
+  }
+  render() {
+    return html`
+      ${
+        this.editing !== false
+          ? this.renderEdition()
+          : this.renderShow()
+    
+      }
+      ${
+        this.requirements !== undefined &&
+        this.requirements.map((requirement) => html`
+          <project-requirement
+            .id=${requirement.id}
+            .title=${requirement.title}>
+          </project-requirement>
+        `)
+      }
     `;
   }
 }

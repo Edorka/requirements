@@ -83,7 +83,69 @@ describe('<project-requirement>', () => {
     expect(titleSpanAgain).to.not.equal(null);
     expect(titleSpanAgain.textContent).to.equal(title);
   });
+
+  it('will should show new requirement', async () => {
+    const title = 'Expected test title';
+    const el = await fixture(html`
+      <project-requirement .id=${1} .title=${title}></project-requirement>
+    `);
+    await elementUpdated(el);
+    const detail = {
+      id: '3',
+      title: 'Sub requirement'
+    };
+    const creationEvent = new CustomEvent('requirement-created', {
+      bubbles: true,
+      detail,
+    });
+    el.shadowRoot.dispatchEvent(creationEvent);
+    await elementUpdated(el);
+    const created = el.shadowRoot.querySelector('project-requirement');
+    expect(created).to.not.equal(null);
+    expect(created.id).to.equal(detail.id);
+    expect(created.title).to.equal(detail.title);
+  });
+
+  it('will show sub-requirements', async () => {
+    const title = 'Requirement title';
+    const requirements = [
+      {'id': '3', 'title': 'Sub-requirement title 3'},
+      {'id': '4', 'title': 'Sub-requirement title 4'},
+    ];
+    const el = await fixture(html`
+      <project-requirement .id=${1} 
+        .title=${title}
+        .requirements=${requirements}>
+      </project-requirement>
+    `);
+    await elementUpdated(el);
+    const rendered = el.shadowRoot.querySelectorAll('project-requirement');
+    expect(rendered.length).to.equal(2);
+  });
+
+  it('will show sub-requirements even on edition', async () => {
+    const title = 'Requirement title';
+    const requirements = [
+      {'id': '3', 'title': 'Sub-requirement title 3'},
+      {'id': '4', 'title': 'Sub-requirement title 4'},
+    ];
+    const el = await fixture(html`
+      <project-requirement .id=${1} 
+        .title=${title}
+        .requirements=${requirements}>
+      </project-requirement>
+    `);
+    await elementUpdated(el);
+    const titleSpan = el.shadowRoot.querySelector('.title');
+    expect(titleSpan.textContent).to.equal(title);
+    const falseClickEvent = new Event('click', { bubbles: true });
+    titleSpan.dispatchEvent(falseClickEvent);
+    await elementUpdated(el);
+    const rendered = el.shadowRoot.querySelectorAll('project-requirement');
+    expect(rendered.length).to.equal(2);
+  });
 });
+
 describe('<requirements-feature> saving behaviors', () => {
   afterEach(() => {
     fetchMock.reset();
@@ -163,7 +225,7 @@ describe('<requirements-feature> saving behaviors', () => {
     expect(errorSpan.textContent).to.equal('Requirement [1] was not found');
   });
 
-  it('should show an error if failed to save', async () => {
+  it('should show an error even if it comes not as JSON', async () => {
     const title = 'Old test title';
     const newTitle = 'Expected another title';
     const nonJSONError = '<h1>Bad gateway 502</h1>';
@@ -197,4 +259,5 @@ describe('<requirements-feature> saving behaviors', () => {
     expect(errorSpan).to.not.equal(null);
     expect(errorSpan.textContent).to.equal("Can't confirm saving");
   });
+
 });
