@@ -106,33 +106,47 @@ export class ProjectRequirement extends LitElement {
     this.editing = false;
     this.requestUpdate();
   }
-  render() {
-    if (this.editing !== false) {
-      return html`
-            <input type="text" 
-                value=${this.editing} 
-                @change=${this.editionChange}>
-            </input>   
-            <button class="small" name="save"
-                @click=${this.clickedSave}
-                ?disabled=${this.didntChanged}></button>
-            <button class="small" name="cancel"
-                @click=${this.cancel}></button>
-            ${
-              this.error !== null
-                ? html`
-                    <span class="error">${this.error}</span>
-                  `
-                : ''
-            }
-        `;
-    }
+  renderEdition() {
+   return html`
+        <input type="text" 
+            value=${this.editing} 
+            @change=${this.editionChange}>
+        </input>   
+        <button class="small" name="save"
+            @click=${this.clickedSave}
+            ?disabled=${this.didntChanged}></button>
+        <button class="small" name="cancel"
+            @click=${this.cancel}></button>
+        ${
+          this.error !== null
+            ? html`
+                <span class="error">${this.error}</span>
+              `
+            : ''
+        }
+    `; 
+  }
+  renderShow() {
     return html`
-      <span class="title" @click=${this.toEditionMode}>${this.title}</span>
+      <span class="title" 
+        @click=${this.toEditionMode}
+        >${this.title}</span>
+    `;
+  }
+  render() {
+    return html`
+      ${
+        this.editing !== false
+          ? this.renderEdition()
+          : this.renderShow()
+    
+      }
       ${
         this.requirements !== undefined &&
         this.requirements.map((requirement) => html`
-          <project-requirement>
+          <project-requirement
+            .id=${requirement.id}
+            .title=${requirement.title}>
           </project-requirement>
         `)
       }

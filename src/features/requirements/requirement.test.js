@@ -100,8 +100,49 @@ describe('<project-requirement>', () => {
     });
     el.shadowRoot.dispatchEvent(creationEvent);
     await elementUpdated(el);
-    const created = el.shadowRoot.querySelectorAll('project-requirement');
-    expect(created.length).to.equal(1);
+    const created = el.shadowRoot.querySelector('project-requirement');
+    expect(created).to.not.equal(null);
+    expect(created.id).to.equal(detail.id);
+    expect(created.title).to.equal(detail.title);
+  });
+
+  it('will show sub-requirements', async () => {
+    const title = 'Requirement title';
+    const requirements = [
+      {'id': '3', 'title': 'Sub-requirement title 3'},
+      {'id': '4', 'title': 'Sub-requirement title 4'},
+    ];
+    const el = await fixture(html`
+      <project-requirement .id=${1} 
+        .title=${title}
+        .requirements=${requirements}>
+      </project-requirement>
+    `);
+    await elementUpdated(el);
+    const rendered = el.shadowRoot.querySelectorAll('project-requirement');
+    expect(rendered.length).to.equal(2);
+  });
+
+  it('will show sub-requirements even on edition', async () => {
+    const title = 'Requirement title';
+    const requirements = [
+      {'id': '3', 'title': 'Sub-requirement title 3'},
+      {'id': '4', 'title': 'Sub-requirement title 4'},
+    ];
+    const el = await fixture(html`
+      <project-requirement .id=${1} 
+        .title=${title}
+        .requirements=${requirements}>
+      </project-requirement>
+    `);
+    await elementUpdated(el);
+    const titleSpan = el.shadowRoot.querySelector('.title');
+    expect(titleSpan.textContent).to.equal(title);
+    const falseClickEvent = new Event('click', { bubbles: true });
+    titleSpan.dispatchEvent(falseClickEvent);
+    await elementUpdated(el);
+    const rendered = el.shadowRoot.querySelectorAll('project-requirement');
+    expect(rendered.length).to.equal(2);
   });
 });
 
